@@ -1,11 +1,12 @@
 # app.py
-import io
+from io import BytesIO
 import base64
+import cv2
 from flask import Flask, request, jsonify, make_response
 from flask_restplus import Resource, Api, fields
 from werkzeug.contrib.fixers import ProxyFix
-from imageio import imread
-from database import db_session
+# from imageio import imread
+from PIL import Image
 from random import randint
 from Oculai import *
 
@@ -24,7 +25,7 @@ class HelloWorld(Resource):
 
 @api.route('/predict')
 class Predict(Resource):
-    print('Prepping ->')
+    print('==> Prepping')
 
     model = api.model('Prediction', {'image': fields.String})
     # @api.marshal_with(model)
@@ -32,13 +33,18 @@ class Predict(Resource):
     def post(self, **kwargs):
         data =  request.get_json()
         #get data
-        image64 = data['image']
-        img = imread(io.BytesIO(base64.b64decode(image64)))
+        img64 = data['image']
+
+        starter = img64.find(',')
+        image_data = img64[starter+1:]
+        image_data = bytes(image_data, encoding="ascii")
+        img = BytesIO(base64.b64decode(image_data))
+        #.decode('base64')
+        # img = imread(io.BytesIO(base64.b64decode(image64)))
 
     
         # finally convert RGB image to BGR for opencv
         # and save result
-        cv2_img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         # input_scaled = scale_data(sensors)
         # input_scaled = input_scaled.reshape(1, 32, 5)
         #input_win = make_windows(input_scaled, 16)
@@ -53,7 +59,7 @@ class Predict(Resource):
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
-    db_session.remove()
+    print('==> Tearing down function');
 
 if __name__ == '__main__':
     app.run(debug=True)
