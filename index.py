@@ -42,19 +42,14 @@ class Predict(Resource):
         #.decode('base64')
         # img = imread(io.BytesIO(base64.b64decode(image64)))
 
-    
-        # finally convert RGB image to BGR for opencv
-        # and save result
-        # input_scaled = scale_data(sensors)
-        # input_scaled = input_scaled.reshape(1, 32, 5)
-        #input_win = make_windows(input_scaled, 16)
-        #input_ready = prep_for_model(input_win, 16, 5)
+
+
 
         #build model
-        # model = build_model('C:/Users/Adrian/Desktop/Hackathons/HackABull2019/Models/deep_hive_weights.h5')
-        data['score'] = randint(0, 5)
+        model = build_model('C:/Users/Adrian/Desktop/Hackathons/occulai/DiaCNN.h5')
+        data['score'] = get_prediction(img, model)
         # data['score'] = get_prediction(input_scaled, model, get_scaler())
-        
+
         return make_response(jsonify(data))
 
 @app.teardown_appcontext
